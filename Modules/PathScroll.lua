@@ -7,7 +7,7 @@ local Container =
 			Template = "Control", 
 			Name = "MissionListCover", 
 			VScroll = true, 
-			--NewControlDepth = 1, 
+			NewControlDepth = 1,
 			IgnoreMouse = true, 
 			Visible = false, 
 			Border = true, 
@@ -31,6 +31,7 @@ function PathScroll:OnEnable()
  	
     self.Build = Apollo.GetAddon(Paths[unitPlayer:GetPlayerPathType()])
     self:PostHook(self.Build, "OnPathUpdate")	          
+    -- Settler specific subscrolling
     self:RegisterEvent("LoadSettlerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.5) end)
 end
 
@@ -49,9 +50,4 @@ function PathScroll:LoadMission(pmMission)
 	scrollContainer:Destroy()
 	Parent.missionDetails =  g_wndDatachron:FindChild("PathContainer"):FindChild("SettlerMissionContainer"):FindChildByUserData(pmMission)	
 	self:PostHook(self.Build, "OnPathUpdate")	
-end
-
-function PathScroll:CanScroll()
-	Parent.glog:debug("POW")
-	scrollContainer:Show(true)
 end
