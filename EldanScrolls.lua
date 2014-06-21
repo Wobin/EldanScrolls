@@ -25,7 +25,7 @@ local tDependencies = {"BuildMap", "Gemini:GUI-1.0", "PathSettlerContent", "Path
 
 EldanScrolls = Apollo.GetPackage("Gemini:Addon-1.1").tPackage:NewAddon("EldanScrolls", bHasConfigureFunction, tDependencies, "Gemini:Hook-1.0")
 
-EldanScrolls:SetDefaultModulePackages("Gemini:Hook-1.0", "Gemini:Event-1.0")
+EldanScrolls:SetDefaultModulePackages("Gemini:Hook-1.0", "Gemini:Event-1.0", "Gemini:Timer-1.0")
 EldanScrolls:SetDefaultModulePrototype({
 	Connect = function(self, parent) self.Parent = parent  return self end,
 })
@@ -38,12 +38,9 @@ local MonitoredFrames = {}
 function EldanScrolls:OnInitialize()  	
 	local GeminiLogging = Apollo.GetPackage("Gemini:Logging-1.2").tPackage
   	self.glog = GeminiLogging:GetLogger({ level = GeminiLogging.DEBUG, pattern = "%d %n %c %l - %m", appender = "GeminiConsole" })
-	self.glog:debug("argh")	
 	self.MonitoredFrames = MonitoredFrames
-self.glog:debug("arghs")	
 	self.SettlerBuildScroll = self:GetModule("SettlerBuildScroll"):Connect(self)
 	self.PathScroll = self:GetModule("PathScroll"):Connect(self)
-self.glog:debug("argzh")	
 end
 
 function EldanScrolls:MouseWheel(...)
@@ -52,6 +49,7 @@ function EldanScrolls:MouseWheel(...)
 	local Details = MonitoredFrames[wndControl:GetName()]
 
 	if not Details then return end
+
 	local Entries = Details.Parent:GetChildren()
 
 	if not Entries then return end

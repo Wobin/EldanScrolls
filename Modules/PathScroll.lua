@@ -7,7 +7,7 @@ local Container =
 			Template = "Control", 
 			Name = "MissionListCover", 
 			VScroll = true, 
-			NewControlDepth = 1, 
+			--NewControlDepth = 1, 
 			IgnoreMouse = true, 
 			Visible = false, 
 			Border = true, 
@@ -30,14 +30,28 @@ function PathScroll:OnEnable()
 	local unitPlayer = GameLib:GetPlayerUnit()
  	
     self.Build = Apollo.GetAddon(Paths[unitPlayer:GetPlayerPathType()])
-    self:PostHook(self.Build, "OnPathUpdate")	      
+    self:PostHook(self.Build, "OnPathUpdate")	          
+    self:RegisterEvent("LoadSettlerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.5) end)
 end
-local setup 
 
-function PathScroll:OnPathUpdate()			
-    local Scroll = self.Build.wndMain:FindChild("MissionList")    
-    local scrollContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container):GetInstance(self, Scroll:GetParent())    
-    Parent.MonitoredFrames[scrollContainer:GetName()] = { Parent = Scroll, Set = Scroll.SetVScrollPos, Get = Scroll.GetVScrollPos, Max= Scroll.GetVScrollRange}
+local scrollContainer, missionDetails, Scroll, clickedButton 
+
+function PathScroll:OnPathUpdate()				
+	if Parent.missionDetails and Parent.missionDetails:IsValid() then return end
+    Scroll = self.Build.wndMain:FindChild("MissionList")    
+    scrollContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container):GetInstance(self, Scroll:GetParent())    
+    Parent.MonitoredFrames[scrollContainer:GetName()] = { Parent = Scroll, Set = Scroll.SetVScrollPos, Get = Scroll.GetVScrollPos, Max= Scroll.GetVScrollRange, Module = self}
     scrollContainer:Show(true)
     self:Unhook(self.Build, "OnPathUpdate")
+end
+
+function PathScroll:LoadMission(pmMission)	
+	scrollContainer:Destroy()
+	Parent.missionDetails =  g_wndDatachron:FindChild("PathContainer"):FindChild("SettlerMissionContainer"):FindChildByUserData(pmMission)	
+	self:PostHook(self.Build, "OnPathUpdate")	
+end
+
+function PathScroll:CanScroll()
+	Parent.glog:debug("POW")
+	scrollContainer:Show(true)
 end
