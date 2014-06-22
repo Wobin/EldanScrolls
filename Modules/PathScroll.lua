@@ -41,7 +41,7 @@ function PathScroll:OnEnable()
     self:RegisterEvent("LoadExplorerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.1) end)
 end
 
-local scrollContainers
+local scrollContainer
 
 function PathScroll:OnPathUpdate()					
     local Scroll = self.Build.wndMain:FindChild("MissionList")    
