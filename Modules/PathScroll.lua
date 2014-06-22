@@ -1,5 +1,5 @@
 local PathScroll = EldanScrolls:NewModule("PathScroll")
-local Parent
+local Parent, unitPlayer, Paths, SubWindows = {}
 
 local Container =
 		{
@@ -19,20 +19,26 @@ local Container =
 
 
 function PathScroll:OnEnable()
-	local Paths = {
+	Paths = {
 		[PlayerPathLib.PlayerPathType_Settler] = "PathSettlerContent",
 		[PlayerPathLib.PlayerPathType_Soldier] = "PathSoldierContent",
 		[PlayerPathLib.PlayerPathType_Scientist] = "PathScientistContent",
 		[PlayerPathLib.PlayerPathType_Explorer] = "PathExplorerContent",
 	 }
-
+	 SubWindows = {
+	 [PlayerPathLib.PlayerPathType_Settler] = "SettlerMissionContainer",
+		[PlayerPathLib.PlayerPathType_Soldier] = "PathSoldierContent",
+		[PlayerPathLib.PlayerPathType_Scientist] = "PathScientistContent",
+		[PlayerPathLib.PlayerPathType_Explorer] = "ExpMissionsMainContainer",	
+	}
 	Parent = self.Parent
-	local unitPlayer = GameLib:GetPlayerUnit()
+	unitPlayer = GameLib:GetPlayerUnit()
  	
     self.Build = Apollo.GetAddon(Paths[unitPlayer:GetPlayerPathType()])
     self:PostHook(self.Build, "OnPathUpdate")	          
     -- Settler specific subscrolling
     self:RegisterEvent("LoadSettlerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.5) end)
+    self:RegisterEvent("LoadExplorerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.5) end)
 end
 
 local scrollContainer, missionDetails, Scroll, clickedButton 
@@ -48,6 +54,7 @@ end
 
 function PathScroll:LoadMission(pmMission)	
 	scrollContainer:Destroy()
-	Parent.missionDetails =  g_wndDatachron:FindChild("PathContainer"):FindChild("SettlerMissionContainer"):FindChildByUserData(pmMission)	
+	Parent.missionDetails =  g_wndDatachron:FindChild("PathContainer"):FindChild(SubWindows[unitPlayer:GetPlayerPathType()]):FindChildByUserData(pmMission)
+		
 	self:PostHook(self.Build, "OnPathUpdate")	
 end

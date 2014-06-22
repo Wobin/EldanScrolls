@@ -25,7 +25,7 @@ local tDependencies = {"BuildMap", "Gemini:GUI-1.0", "PathSettlerContent", "Path
 
 EldanScrolls = Apollo.GetPackage("Gemini:Addon-1.1").tPackage:NewAddon("EldanScrolls", bHasConfigureFunction, tDependencies, "Gemini:Hook-1.0")
 
-EldanScrolls:SetDefaultModulePackages("Gemini:Hook-1.0", "Gemini:Event-1.0")
+EldanScrolls:SetDefaultModulePackages("Gemini:Hook-1.0", "Gemini:Event-1.0", "Gemini:Timer-1.0")
 EldanScrolls:SetDefaultModulePrototype({
 	Connect = function(self, parent) self.Parent = parent  return self end,
 })
