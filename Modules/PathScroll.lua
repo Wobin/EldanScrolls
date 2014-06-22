@@ -26,7 +26,7 @@ function PathScroll:OnEnable()
 		[PlayerPathLib.PlayerPathType_Explorer] = "PathExplorerContent",
 	 }
 	 SubWindows = {
-	 [PlayerPathLib.PlayerPathType_Settler] = "SettlerMissionContainer",
+	 	[PlayerPathLib.PlayerPathType_Settler] = "SettlerMissionContainer",
 		[PlayerPathLib.PlayerPathType_Soldier] = "PathSoldierContent",
 		[PlayerPathLib.PlayerPathType_Scientist] = "PathScientistContent",
 		[PlayerPathLib.PlayerPathType_Explorer] = "ExpMissionsMainContainer",	
@@ -37,24 +37,25 @@ function PathScroll:OnEnable()
     self.Build = Apollo.GetAddon(Paths[unitPlayer:GetPlayerPathType()])
     self:PostHook(self.Build, "OnPathUpdate")	          
     -- Settler specific subscrolling
-    self:RegisterEvent("LoadSettlerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.5) end)
-    self:RegisterEvent("LoadExplorerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.5) end)
+    self:RegisterEvent("LoadSettlerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.1) end)
+    self:RegisterEvent("LoadExplorerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.1) end)
 end
 
-local scrollContainer, missionDetails, Scroll, clickedButton 
+local scrollContainers
 
-function PathScroll:OnPathUpdate()				
-	if Parent.missionDetails and Parent.missionDetails:IsValid() then return end
-    Scroll = self.Build.wndMain:FindChild("MissionList")    
+function PathScroll:OnPathUpdate()					
+    local Scroll = self.Build.wndMain:FindChild("MissionList")    
     scrollContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container):GetInstance(self, Scroll:GetParent())    
-    Parent.MonitoredFrames[scrollContainer:GetName()] = { Parent = Scroll, Set = Scroll.SetVScrollPos, Get = Scroll.GetVScrollPos, Max= Scroll.GetVScrollRange, Module = self}
+    Parent.MonitoredFrames[scrollContainer:GetName()] = { Parent = Scroll, Set = Scroll.SetVScrollPos, Get = Scroll.GetVScrollPos, Max= Scroll.GetVScrollRange}
     scrollContainer:Show(true)
     self:Unhook(self.Build, "OnPathUpdate")
 end
 
 function PathScroll:LoadMission(pmMission)	
-	scrollContainer:Destroy()
-	Parent.missionDetails =  g_wndDatachron:FindChild("PathContainer"):FindChild(SubWindows[unitPlayer:GetPlayerPathType()]):FindChildByUserData(pmMission)
-		
-	self:PostHook(self.Build, "OnPathUpdate")	
+	scrollContainer:Show(false)
+	local missionDetails =  Apollo.GetAddon("PathSettlerMissions") or Apollo.GetAddon("PathExplorerMissions")
+	self:PostHook(missionDetails, "HelperResetUI", function() scrollContainer:Show(false) end)		
+	self:PostHook(missionDetails, "LoadFromList", function() scrollContainer:Show(true) end)
+	self:UnregisterEvent("LoadSettlerMission")
+	self:UnregisterEvent("LoadExplorerMission")
 end
