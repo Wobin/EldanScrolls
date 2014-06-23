@@ -41,11 +41,13 @@ function PathScroll:OnEnable()
     self:RegisterEvent("LoadExplorerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.1) end)
 end
 
-local scrollContainer
+local scrollContainer, scavengerContainer, GUIContainer
 
 function PathScroll:OnPathUpdate()					
     local Scroll = self.Build.wndMain:FindChild("MissionList")    
-    scrollContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container):GetInstance(self, Scroll:GetParent())    
+    GUIContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container)
+    GUIContainer:SetOption("Name", "MissionListCover")
+    scrollContainer = GUIContainer:GetInstance(self, Scroll:GetParent())    
     Parent.MonitoredFrames[scrollContainer:GetName()] = { Parent = Scroll, Set = Scroll.SetVScrollPos, Get = Scroll.GetVScrollPos, Max= Scroll.GetVScrollRange}
     scrollContainer:Show(true)
     self:Unhook(self.Build, "OnPathUpdate")
@@ -53,9 +55,25 @@ end
 
 function PathScroll:LoadMission(pmMission)	
 	scrollContainer:Show(false)
+
 	local missionDetails =  Apollo.GetAddon("PathSettlerMissions") or Apollo.GetAddon("PathExplorerMissions")
-	self:PostHook(missionDetails, "HelperResetUI", function() scrollContainer:Show(false) end)		
-	self:PostHook(missionDetails, "LoadFromList", function() scrollContainer:Show(true) end)
+	
+	if missionDetails.wndExplorerHuntNotice then
+		GUIContainer:SetOption("Name", "ScavengerCover")
+		local Scroll = missionDetails.wndMain:FindChild("ScavClueContainer")
+		scavengerContainer = GUIContainer:GetInstance(self, Scroll:GetParent())    
+		Parent.MonitoredFrames[scavengerContainer:GetName()] = { Parent = Scroll, Set = Scroll.SetVScrollPos, Get = Scroll.GetVScrollPos, Max= Scroll.GetVScrollRange}
+		scavengerContainer:Show(true)		
+	end
+
+	self:PostHook(missionDetails, "HelperResetUI", function() self:ToggleScreen(scrollContainer) self:ToggleScreen(scavengerContainer) end)		
+	self:PostHook(missionDetails, "LoadFromList", function()  self:ToggleScreen(scrollContainer) self:ToggleScreen(scavengerContainer) end)
+
 	self:UnregisterEvent("LoadSettlerMission")
 	self:UnregisterEvent("LoadExplorerMission")
+end
+
+function PathScroll:ToggleScreen(wndScreen)
+	if not wndScreen then return end
+	wndScreen:Show(not wndScreen:IsShown())
 end
