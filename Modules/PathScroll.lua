@@ -35,6 +35,10 @@ function PathScroll:OnEnable()
 	unitPlayer = GameLib:GetPlayerUnit()
  	
     self.Build = Apollo.GetAddon(Paths[unitPlayer:GetPlayerPathType()])
+
+    -- Ignore any paths that don't have anything to scroll
+    if not self.Build then return end
+    
     self:PostHook(self.Build, "OnPathUpdate")	          
     -- Settler specific subscrolling
     self:RegisterEvent("LoadSettlerMission", function(name, pMission) self:ScheduleTimer(function() self:LoadMission(pMission) end, 0.1) end)
@@ -44,7 +48,7 @@ end
 local scrollContainer, scavengerContainer, GUIContainer
 
 function PathScroll:OnPathUpdate()					
-    local Scroll = self.Build.wndMain:FindChild("MissionList")    
+    local Scroll = self.Build.tWndRefs.wndMissionList    
     GUIContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container)
     GUIContainer:SetOption("Name", "MissionListCover")
     scrollContainer = GUIContainer:GetInstance(self, Scroll:GetParent())    
