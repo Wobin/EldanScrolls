@@ -48,7 +48,7 @@ end
 local scrollContainer, scavengerContainer, GUIContainer
 
 function PathScroll:OnPathUpdate()					
-    local Scroll = self.Build.tWndRefs.wndMissionList    
+    local Scroll = self.Build.wndMain and self.Build.wndMain:FindChild("MissionList") or self.Build.tWndRefs.wndMissionList
     GUIContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container)
     GUIContainer:SetOption("Name", "MissionListCover")
     scrollContainer = GUIContainer:GetInstance(self, Scroll:GetParent())    
