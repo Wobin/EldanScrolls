@@ -1,4 +1,4 @@
-local PathScroll = EldanScrolls:NewModule("PathScroll")
+local PathScroll = Apollo.GetAddon("EldanScrolls"):NewModule("PathScroll")
 local Parent, unitPlayer, Paths, SubWindows = {}
 
 local Container =
@@ -12,9 +12,7 @@ local Container =
 			Visible = false, 
 			Border = true, 
 			UseTemplateBG = true, 
-					Events = {
-						MouseWheel = function(...) EldanScrolls:MouseWheel(...) end
-					},
+					Events = {},
 		}
 
 
@@ -37,7 +35,7 @@ function PathScroll:OnEnable()
     self.Build = Apollo.GetAddon(Paths[unitPlayer:GetPlayerPathType()])
 
     -- Ignore any paths that don't have anything to scroll
-    if not self.Build then return end
+    if not self.Build or not self.Build.OnPathUpdate then return end
     
     self:PostHook(self.Build, "OnPathUpdate")	          
     -- Settler specific subscrolling
@@ -49,6 +47,7 @@ local scrollContainer, scavengerContainer, GUIContainer
 
 function PathScroll:OnPathUpdate()					
     local Scroll = self.Build.wndMain and self.Build.wndMain:FindChild("MissionList") or self.Build.tWndRefs.wndMissionList
+    Container.Events.MouseWheel = function(...) Parent:MouseWheel(...) end
     GUIContainer = Apollo.GetPackage("Gemini:GUI-1.0").tPackage:Create(Container)
     GUIContainer:SetOption("Name", "MissionListCover")
     scrollContainer = GUIContainer:GetInstance(self, Scroll:GetParent())    
